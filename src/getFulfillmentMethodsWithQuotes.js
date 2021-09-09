@@ -19,9 +19,16 @@ const packageName = "flat-rate-shipping";
  */
 export default async function getFulfillmentMethodsWithQuotes(context, commonOrder, previousQueryResults = []) {
   const { collections } = context;
-  const { Shipping } = collections;
+  const { Shipping, Shops } = collections;
   const [rates = [], retrialTargets = []] = previousQueryResults;
   const currentMethodInfo = { packageName };
+
+  const primaryShop = await Shops.findOne({
+    shopType: "primary"
+  });
+
+  Logger.info("Primary shop");
+  Logger.info(primaryShop._id);
 
   if (retrialTargets.length > 0) {
     const isNotAmongFailedRequests = retrialTargets.every((target) => target.packageName !== packageName);
@@ -30,14 +37,14 @@ export default async function getFulfillmentMethodsWithQuotes(context, commonOrd
     }
   }
 
-  const { isShippingRatesFulfillmentEnabled } = await context.queries.appSettings(context, commonOrder.shopId);
+  const { isShippingRatesFulfillmentEnabled } = await context.queries.appSettings(context, primaryShop._id);
 
   if (!isShippingRatesFulfillmentEnabled) {
     return [rates, retrialTargets];
   }
 
   const shippingRateDocs = await Shipping.find({
-    "shopId": commonOrder.shopId,
+    "shopId": primaryShop._id,
     "provider.enabled": true
   }).toArray();
 

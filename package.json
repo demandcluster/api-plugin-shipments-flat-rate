@@ -1,5 +1,5 @@
 {
-  "name": "@reactioncommerce/api-plugin-shipments-flat-rate",
+  "name": "@demandcluster/api-plugin-shipments-flat-rate",
   "description": "Flat Rate Shipments plugin for the Reaction API",
   "version": "0.0.0-development",
   "main": "index.js",
@@ -7,21 +7,21 @@
   "engines": {
     "node": ">=12.14.1"
   },
-  "homepage": "https://github.com/reactioncommerce/api-plugin-shipments-flat-rate",
-  "url": "https://github.com/reactioncommerce/api-plugin-shipments-flat-rate",
-  "email": "engineering@reactioncommerce.com",
+  "homepage": "https://github.com/demandcluster/api-plugin-shipments-flat-rate",
+  "url": "https://github.com/demandcluster/api-plugin-shipments-flat-rate",
+  "email": "engineering@demandcluster.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reactioncommerce/api-plugin-shipments-flat-rate.git"
+    "url": "git+https://github.com/demandcluster/api-plugin-shipments-flat-rate.git"
   },
   "author": {
-    "name": "Reaction Commerce",
-    "email": "engineering@reactioncommerce.com",
-    "url": "https://reactioncommerce.com"
+    "name": "DemandCluster",
+    "email": "engineering@demandcluster.com",
+    "url": "https://demandcluster.com"
   },
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/reactioncommerce/api-plugin-shipments-flat-rate/issues"
+    "url": "https://github.com/demandcluster/api-plugin-shipments-flat-rate/issues"
   },
   "sideEffects": false,
   "dependencies": {
