@@ -1,5 +1,6 @@
 import orderMatchesDestinationRestriction from "./orderMatchesDestinationRestriction.js";
 import orderMatchesItemAttributesRestriction from "./orderMatchesItemAttributesRestriction.js";
+import orderMatchesOrderAttributesRestriction from "./orderMatchesOrderAttributesRestriction.js";
 
 /**
  * @summary Check whether a common order passes all restrictions
@@ -10,15 +11,11 @@ import orderMatchesItemAttributesRestriction from "./orderMatchesItemAttributesR
 export default function orderPassesRestrictions(commonOrder, fulfillmentRestrictions) {
   return fulfillmentRestrictions.every((restriction) => {
     const { type } = restriction;
-    if (type === "deny") {
-      return !(
-        orderMatchesItemAttributesRestriction(commonOrder, restriction) &&
-          orderMatchesDestinationRestriction(commonOrder, restriction)
-      );
-    }
 
-    // type === "allow"
-    return orderMatchesItemAttributesRestriction(commonOrder, restriction) &&
+    const matchesRestriction = orderMatchesOrderAttributesRestriction(commonOrder, restriction) &&
+      orderMatchesItemAttributesRestriction(commonOrder, restriction) &&
       orderMatchesDestinationRestriction(commonOrder, restriction);
+
+    return type === "deny" ? !matchesRestriction : matchesRestriction;
   });
 }
