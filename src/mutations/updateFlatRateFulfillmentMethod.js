@@ -29,6 +29,7 @@ export default async function updateFlatRateFulfillmentMethodMutation(context, i
   // MongoDB schema still uses `enabled` rather than `isEnabled`
   method.enabled = method.isEnabled;
   delete method.isEnabled;
+  method._id = methodId;
 
   const { matchedCount } = await Shipping.updateOne({
     "methods._id": methodId,
@@ -36,14 +37,11 @@ export default async function updateFlatRateFulfillmentMethodMutation(context, i
   }, {
     $set: {
       "methods.$": {
-        ...method,
-        _id: methodId
+        ...method
       }
     }
   });
   if (matchedCount === 0) throw new ReactionError("not-found", "Not found");
 
-  inputMethod._id = methodId;
-
-  return { method: inputMethod };
+  return { method };
 }

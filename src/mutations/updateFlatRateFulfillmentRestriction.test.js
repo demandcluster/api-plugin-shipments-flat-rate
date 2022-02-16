@@ -8,27 +8,25 @@ mockContext.collections.FlatRateFulfillmentRestrictions = mockCollection("FlatRa
 mockContext.validatePermissions.mockReturnValueOnce(Promise.resolve(null));
 
 const restriction = {
+  name: "Restrict knifes in CO and NY",
   type: "deny",
-  attributes: [
+  itemAttributes: [
     { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
     { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
   ],
   destination: { region: ["CO", "NY"] }
 };
 
-const updatedRestriction = {
-  type: "deny",
-  attributes: [
-    { property: "vendor", value: "john", propertyType: "string", operator: "eq" },
-    { property: "productType", value: "gun", propertyType: "string", operator: "eq" }
-  ],
-  destination: { region: ["CO", "NY"] }
+const dbRestriction = {
+  _id: "restriction123",
+  shopId: "shop123",
+  ...restriction
 };
 
 test("update a flat rate fulfillment restriction", async () => {
-  mockContext.collections.FlatRateFulfillmentRestrictions.updateOne.mockReturnValueOnce(Promise.resolve({
+  mockContext.collections.FlatRateFulfillmentRestrictions.findOneAndUpdate.mockReturnValueOnce(Promise.resolve({
     ok: 1,
-    updatedRestriction
+    value: dbRestriction
   }));
 
   const result = await updateFlatRateFulfillmentRestrictionMutation(mockContext, {
@@ -40,8 +38,9 @@ test("update a flat rate fulfillment restriction", async () => {
   expect(result).toEqual({
     restriction: {
       _id: "restriction123",
+      name: "Restrict knifes in CO and NY",
       type: "deny",
-      attributes: [
+      itemAttributes: [
         { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
         { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
       ],

@@ -8,8 +8,9 @@ mockContext.collections.FlatRateFulfillmentRestrictions = mockCollection("FlatRa
 mockContext.validatePermissions.mockReturnValueOnce(Promise.resolve(null));
 
 const value = {
+  name: "Restrict knifes in CO and NY",
   type: "deny",
-  attributes: [
+  itemAttributes: [
     { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
     { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
   ],
@@ -29,8 +30,9 @@ test("delete a flat rate fulfillment restriction", async () => {
 
   expect(result).toEqual({
     restriction: {
+      name: "Restrict knifes in CO and NY",
       type: "deny",
-      attributes: [
+      itemAttributes: [
         { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
         { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
       ],

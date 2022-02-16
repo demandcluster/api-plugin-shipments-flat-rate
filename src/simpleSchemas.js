@@ -42,22 +42,48 @@ export const Destination = new SimpleSchema({
   "postal.$": String
 });
 
-const restrictionSchema = new SimpleSchema({
+export const FulfillmentRestrictionSchema = new SimpleSchema({
+  "name": {
+    type: String,
+    optional: true
+  },
   "methodIds": {
     type: Array,
     optional: true
   },
   "methodIds.$": String,
   "type": String,
-  "attributes": {
+  "orderAttributes": {
     type: Array,
     optional: true
   },
-  "attributes.$": Attributes,
+  "orderAttributes.$": Attributes,
+  "itemAttributes": {
+    type: Array,
+    optional: true
+  },
+  "itemAttributes.$": Attributes,
   "destination": {
     type: Destination,
     optional: true
   }
 });
 
-export default restrictionSchema;
+export const FulfillmentMethodSchema = new SimpleSchema({
+  "_id": String,
+  "cost": {
+    type: Number,
+    optional: true
+  },
+  "fulfillmentTypes": {
+    type: Array,
+    minCount: 1
+  },
+  "fulfillmentTypes.$": String,
+  "group": String,
+  "handling": Number,
+  "isEnabled": Boolean,
+  "label": String,
+  "name": String,
+  "rate": Number
+});

@@ -1,12 +1,11 @@
 import mockCollection from "@reactioncommerce/api-utils/tests/mockCollection.js";
 import mockContext from "@reactioncommerce/api-utils/tests/mockContext.js";
-import filterShippingMethods from "./filterShippingMethods.js";
+import filterFulfillmentMethods from "./filterFulfillmentMethods.js";
 
 // Create mock context with FlatRateFulfillmentRestrictions collection
 mockContext.collections.FlatRateFulfillmentRestrictions = mockCollection("FlatRateFulfillmentRestrictions");
 
-// Mock shipping method
-const mockShippingMethod = [
+const mockFulfillmentMethod = [
   {
     cost: 7.99,
     fulfillmentTypes: [
@@ -23,59 +22,89 @@ const mockShippingMethod = [
   }
 ];
 
-// Mock cart items
-const mockHydratedOrderItems = {
-  _id: "tMkp5QwZog5ihYTfG",
-  createdAt: "2018-11-01T16:42:03.448Z",
-  description: "Represent the city that never sleeps with this classic T.",
-  isDeleted: false,
-  isTaxable: true,
-  isVisible: true,
-  pageTitle: "212. 646. 917.",
-  price: 12.99,
-  primaryImage: [Object],
-  productId: "cR6LKN5yGSiei7cia",
-  shopId: "J8Bhq3uTtdgwZx3rz",
-  slug: "new-york-city-1998-t-shirt",
-  supportedFulfillmentTypes: [Array],
-  tagIds: [Array],
-  title: "Small",
-  type: "product-simple",
-  updatedAt: "2018-11-01T16:42:03.448Z",
-  vendor: "Restricted Vendor",
-  height: 10,
-  index: 0,
-  length: 10,
-  optionTitle: "Small",
-  originCountry: "US",
-  taxCode: "0000",
-  variantId: "tMkp5QwZog5ihYTfG",
-  weight: 50,
-  width: 10,
-  tags: [Array]
-};
-
-const mockHydratedOrder = {
-  shippingAddress:
+const mockCommonOrderItems = [
   {
-    address1: "123 California Street",
-    city: "Los Angeles",
-    country: "US",
-    postal: "90405",
-    region: "CA"
+    _id: "tMkp5QwZog5ihYTfG",
+    createdAt: "2018-11-01T16:42:03.448Z",
+    description: "Represent the city that never sleeps with this classic T.",
+    isDeleted: false,
+    isTaxable: true,
+    isVisible: true,
+    pageTitle: "212. 646. 917.",
+    price: 12.99,
+    primaryImage: [Object],
+    productId: "cR6LKN5yGSiei7cia",
+    shopId: "J8Bhq3uTtdgwZx3rz",
+    slug: "new-york-city-1998-t-shirt",
+    supportedFulfillmentTypes: [Array],
+    tagIds: [Array],
+    title: "Small",
+    type: "product-simple",
+    updatedAt: "2018-11-01T16:42:03.448Z",
+    vendor: "Restricted Vendor",
+    height: 10,
+    index: 0,
+    length: 10,
+    optionTitle: "Small",
+    originCountry: "US",
+    taxCode: "0000",
+    variantId: "tMkp5QwZog5ihYTfG",
+    weight: 50,
+    width: 10,
+    tags: [Array]
   },
+  {
+    _id: "PRkZbtzmkkeqJhP8D",
+    createdAt: "2021-11-04T18:10:16.977Z",
+    description: "Represent the city that never sleeps with this classic T.",
+    isDeleted: false,
+    isTaxable: true,
+    isVisible: true,
+    pageTitle: "212. 646. 917.",
+    price: 22.99,
+    primaryImage: [Object],
+    productId: "QwzQimMRdXhztgXGL",
+    shopId: "kjnfem5vickkShHAp",
+    slug: "new-jersey-t-shirt",
+    supportedFulfillmentTypes: [Array],
+    tagIds: [Array],
+    title: "New Jersey T-Shirt",
+    type: "product-simple",
+    updatedAt: "2018-11-01T16:42:03.448Z",
+    vendor: "Allowed Vendor",
+    height: 10,
+    index: 0,
+    length: 10,
+    optionTitle: "Small",
+    originCountry: "US",
+    taxCode: "0000",
+    variantId: "PRkZbtzmkkeqJhP8D",
+    weight: 50,
+    width: 10,
+    tags: [Array]
+  }
+];
+
+const mockCommonOrder = {
+  shippingAddress:
+    {
+      address1: "123 California Street",
+      city: "Los Angeles",
+      country: "US",
+      postal: "90405",
+      region: "CA"
+    },
   discountTotal: 0,
-  items:
-  [mockHydratedOrderItems],
+  items: mockCommonOrderItems,
   itemTotal: 898.95,
   total: 898.95
 };
 
 /*
- * Tests with location restrictions that allow method
+ * Tests with destination restrictions that allow method
  */
 test("allow method - country on allow list, region / zip not on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -107,13 +136,13 @@ test("allow method - country on allow list, region / zip not on deny list, no it
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
 test("allow method - region on allow list, country / zip not on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -134,19 +163,23 @@ test("allow method - region on allow list, country / zip not on deny list, no it
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      destination: {}
+      destination: {
+        postal: [
+          "30405"
+        ]
+      }
     }
   ];
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
 test("allow method - postal on allow list, country / region not on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -173,17 +206,17 @@ test("allow method - postal on allow list, country / region not on deny list, no
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
 /*
- * Tests with location restrictions AND attribute restrictions that allow method
- * Test should pass because Shipping location is not the restricted location
+ * Tests with destination restrictions AND item attribute restrictions that allow method
+ * Test should pass because Shipping destination is not the restricted destination
  */
-test("allow method - do not allow shipping of `Restricted Vendor` to Canada, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("allow method - do not allow shipping of `Restricted Vendor` to Canada, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
   const mockMethodRestrictions = [
     {
       _id: "allow001",
@@ -203,7 +236,7 @@ test("allow method - do not allow shipping of `Restricted Vendor` to Canada, all
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -221,13 +254,13 @@ test("allow method - do not allow shipping of `Restricted Vendor` to Canada, all
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
-test("allow method - do not allow shipping of `Restricted Vendor` to Hawaii, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("allow method - do not allow shipping of `Restricted Vendor` to Hawaii, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -248,7 +281,7 @@ test("allow method - do not allow shipping of `Restricted Vendor` to Hawaii, all
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -266,13 +299,13 @@ test("allow method - do not allow shipping of `Restricted Vendor` to Hawaii, all
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
-test("allow method - do not allow shipping of `Restricted Vendor` to 10001, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("allow method - do not allow shipping of `Restricted Vendor` to 10001, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -293,7 +326,7 @@ test("allow method - do not allow shipping of `Restricted Vendor` to 10001, all 
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -311,12 +344,12 @@ test("allow method - do not allow shipping of `Restricted Vendor` to 10001, all 
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
-test("allow method - multiple attributes but only 1 meets criteria to deny", async () => {
+test("allow method - multiple item attributes but only 1 meets criteria to deny", async () => {
   const mockMethodRestrictions = [
     {
       _id: "allow001",
@@ -336,7 +369,7 @@ test("allow method - multiple attributes but only 1 meets criteria to deny", asy
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "total",
           value: 500,
@@ -355,18 +388,18 @@ test("allow method - multiple attributes but only 1 meets criteria to deny", asy
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
-  expect(allowedMethods).toEqual(mockShippingMethod);
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
 });
 
 
 /*
- * Tests with location restrictions AND attribute restrictions that deny method
- * Test should fail because Shipping location is the restricted location
+ * Tests with deny destination restrictions AND deny item attribute restrictions that deny method
+ * Test should fail because Shipping destination is the restricted destination
  */
-test("deny method - do not allow shipping of `Restricted Vendor` to United States, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("deny method - do not allow shipping of `Restricted Vendor` to United States, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
   const mockMethodRestrictions = [
     {
       _id: "allow001",
@@ -382,7 +415,7 @@ test("deny method - do not allow shipping of `Restricted Vendor` to United State
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -400,13 +433,13 @@ test("deny method - do not allow shipping of `Restricted Vendor` to United State
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
-test("deny method - do not allow shipping of `Restricted Vendor` to California, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("deny method - do not allow shipping of `Restricted Vendor` to California, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -427,7 +460,7 @@ test("deny method - do not allow shipping of `Restricted Vendor` to California, 
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -445,13 +478,13 @@ test("deny method - do not allow shipping of `Restricted Vendor` to California, 
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
-test("deny method - do not allow shipping of `Restricted Vendor` to 90405, all other locations allowed", async () => {
-  // Shipping Location: US, CA, 90405
+test("deny method - do not allow shipping of `Restricted Vendor` to 90405, all other destinations allowed", async () => {
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -472,7 +505,7 @@ test("deny method - do not allow shipping of `Restricted Vendor` to 90405, all o
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -490,16 +523,16 @@ test("deny method - do not allow shipping of `Restricted Vendor` to 90405, all o
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
 /*
- * Tests with location restrictions that deny method
+ * Tests with deny destination restrictions that deny method
  */
 test("deny method - country on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -526,13 +559,13 @@ test("deny method - country on deny list, no item restrictions", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
 test("deny method - region on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -563,13 +596,13 @@ test("deny method - region on deny list, no item restrictions", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
 test("deny method - postal on deny list, no item restrictions", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -600,13 +633,13 @@ test("deny method - postal on deny list, no item restrictions", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
 test("deny method - region on one deny list, but also is not on other deny lists", async () => {
-  // Shipping Location: US, CA, 90405
+  // Shipping destination: US, CA, 90405
 
   const mockMethodRestrictions = [
     {
@@ -649,13 +682,13 @@ test("deny method - region on one deny list, but also is not on other deny lists
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
 /*
- * Test with item / attribute restrictions that deny method
+ * Test with deny item attribute restrictions that deny method
  */
 test("deny method - vendor on deny list", async () => {
   const mockMethodRestrictions = [
@@ -677,7 +710,7 @@ test("deny method - vendor on deny list", async () => {
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "vendor",
           value: "Restricted Vendor",
@@ -690,7 +723,7 @@ test("deny method - vendor on deny list", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
@@ -715,7 +748,7 @@ test("deny method - item weight is too high", async () => {
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "weight",
           value: 40,
@@ -728,7 +761,7 @@ test("deny method - item weight is too high", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
@@ -753,7 +786,7 @@ test("deny method - item value is less than $100", async () => {
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "price",
           value: 100,
@@ -766,12 +799,12 @@ test("deny method - item value is less than $100", async () => {
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });
 
-test("deny method - multiple attributes - item value is less than $100 AND item weight is too high", async () => {
+test("deny method - multiple item attributes - item value is less than $100 AND item weight is too high", async () => {
   const mockMethodRestrictions = [
     {
       _id: "allow001",
@@ -791,7 +824,7 @@ test("deny method - multiple attributes - item value is less than $100 AND item 
         "stviZaLdqRvTKW6J5"
       ],
       type: "deny",
-      attributes: [
+      itemAttributes: [
         {
           property: "price",
           value: 100,
@@ -810,7 +843,97 @@ test("deny method - multiple attributes - item value is less than $100 AND item 
 
   mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
 
-  const allowedMethods = await filterShippingMethods(mockContext, mockShippingMethod, mockHydratedOrder);
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
+
+  expect(allowedMethods).toEqual([]);
+});
+
+/*
+ * Test with destination and item attribute restrictions on allowed list, that allow method
+ */
+test("allow method - all items shipped to US country of origin is US", async () => {
+  const mockMethodRestrictions = [
+    {
+      _id: "allow001",
+      methodIds: [
+        "stviZaLdqRvTKW6J5"
+      ],
+      type: "allow",
+      itemAttributes: [
+        {
+          property: "originCountry",
+          value: "US",
+          propertyType: "string",
+          operator: "eq"
+        }
+      ],
+      destination: {
+        country: ["US"]
+      }
+    }
+  ];
+
+  mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
+
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
+
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
+});
+
+/*
+ * Test with item attribute restrictions on allowed list, that allow method
+ */
+test("allow method - all items country of origin is US", async () => {
+  const mockMethodRestrictions = [
+    {
+      _id: "allow001",
+      methodIds: [
+        "stviZaLdqRvTKW6J5"
+      ],
+      type: "allow",
+      itemAttributes: [
+        {
+          property: "originCountry",
+          value: "US",
+          propertyType: "string",
+          operator: "eq"
+        }
+      ]
+    }
+  ];
+
+  mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
+
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
+
+  expect(allowedMethods).toEqual(mockFulfillmentMethod);
+});
+
+/*
+ * Test with item attribute restrictions on allowed list, that deny method
+ */
+test("deny method - all items' vendor are 'Allowed Vendor'", async () => {
+  const mockMethodRestrictions = [
+    {
+      _id: "allow001",
+      methodIds: [
+        "stviZaLdqRvTKW6J5"
+      ],
+      type: "allow",
+      itemAttributes: [
+        {
+          property: "vendor",
+          value: "Allowed Vendor",
+          propertyType: "string",
+          operator: "eq"
+        }
+      ]
+    }
+  ];
+
+  mockContext.collections.FlatRateFulfillmentRestrictions.toArray.mockReturnValue(Promise.resolve(mockMethodRestrictions));
+
+  const allowedMethods = await filterFulfillmentMethods(mockContext, mockFulfillmentMethod, mockCommonOrder);
 
   expect(allowedMethods).toEqual([]);
 });

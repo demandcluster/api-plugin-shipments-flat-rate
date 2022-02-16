@@ -17,7 +17,7 @@ export default async function flatRateFulfillmentMethods(context, input) {
     shopId
   });
 
-  // aggregate pipeline to extract fulfillment methods inside shippment
+  // aggregate pipeline to extract fulfillment methods inside shipment
   return {
     collection: Shipping,
     pipeline: [

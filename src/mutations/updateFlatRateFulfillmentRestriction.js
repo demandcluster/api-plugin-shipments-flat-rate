@@ -1,10 +1,10 @@
 import SimpleSchema from "simpl-schema";
 import ReactionError from "@reactioncommerce/reaction-error";
-import restrictionSchema from "../util/restrictionSchema.js";
+import { FulfillmentRestrictionSchema } from "../simpleSchemas.js";
 
 const inputSchema = new SimpleSchema({
   restrictionId: String,
-  restriction: restrictionSchema,
+  restriction: FulfillmentRestrictionSchema,
   shopId: String
 });
 
@@ -26,21 +26,22 @@ export default async function updateFlatRateFulfillmentRestrictionMutation(conte
 
   await context.validatePermissions(`reaction:legacy:shippingRestrictions:${restrictionId}`, "update", { shopId });
 
-  const { matchedCount } = await FlatRateFulfillmentRestrictions.updateOne({
+  const { ok, value: updatedRestriction } = await FlatRateFulfillmentRestrictions.findOneAndUpdate({
     _id: restrictionId,
     shopId
   }, {
     $set: {
       ...restriction
     }
+  }, {
+    returnOriginal: false
   });
-  if (matchedCount === 0) throw new ReactionError("not-found", "Not found");
+
+  if (ok !== 1) {
+    throw new ReactionError("server-error", "Unable to find or update restriction");
+  }
 
   return {
-    restriction: {
-      _id: restrictionId,
-      shopId,
-      ...restriction
-    }
+    restriction: updatedRestriction
   };
 }

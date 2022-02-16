@@ -1,16 +1,13 @@
-####
-# Custom data types for FlatRateFulfillmentRestriction data
-####
 "An attribute restriction condition"
-type AttributeRestrictions {
+type AttributeRestriction {
   "The operator to use for value comparison"
-  operator: String!
+  operator: Operator!
 
   "The property to check"
   property: String!
 
   "The type of this property"
-  propertyType: String!
+  propertyType: PropertyTypeEnum!
 
   "The value to check for"
   value: String!
@@ -31,9 +28,37 @@ type DestinationRestrictions {
   region: [String]
 }
 
+"Attribute operator"
+enum Operator {
+  "Equals"
+  eq
+
+  "Greater than"
+  gt
+
+  "Less than"
+  lt
+
+  "Not equal"
+  ne
+
+  "Matches"
+  match
+
+  "Includes in array"
+  includes
+}
+
+enum PropertyTypeEnum {
+  bool
+  float
+  int
+  string
+}
+
 "Restriction type"
 enum RestrictionTypeEnum {
-  "Allow"
+  ""
   allow
 
   "Deny"
@@ -47,15 +72,15 @@ enum FlatRateFulfillmentRestrictionSortByField {
 }
 
 "Input to create an attribute restriction condition"
-input AttributeRestrictionsInput {
+input AttributeRestrictionInput {
   "The operator to use for value comparison"
-  operator: String!
+  operator: Operator!
 
   "The property to check"
   property: String!
 
   "The type of this property"
-  propertyType: String!
+  propertyType: PropertyTypeEnum!
 
   "The value to check for"
   value: String!
@@ -153,10 +178,19 @@ type FlatRateFulfillmentRestriction implements Node {
   "The restriction ID."
   _id: ID!
 
-  "Attribute restrictions. Multiple attribute restrictions are evaluated with AND. If both destination and attribute restrictions are present, they evaluate with AND."
-  attributes: [AttributeRestrictions]
+  "Name of the restriction"
+  name: String
 
-  "Destination restrictions. If multiple destination restrictions are present, the most localized is the only one evaluated (i.e. evaluate postal if present, then region if present, then country). If both destination and attribute restrictions are present, they evaluate with AND."
+  """
+  Attribute restrictions applied on order items.
+  Multiple attribute restrictions are evaluated with AND.
+  """
+  itemAttributes: [AttributeRestriction]
+
+  """
+  Destination restrictions. If multiple destination restrictions are present, the most localized
+  is the only one evaluated (i.e. evaluate postal if present, then region if present, then country).
+  """
   destination: DestinationRestrictions
 
   "Method IDs to apply this restriction to. If none, applies to all methods as a universal restriction."
@@ -185,13 +219,22 @@ extend type Mutation {
 # Inputs
 "Defines the input for a flat rate fulfillment method restriction."
 input FlatRateFulfillmentRestrictionInput {
-  "Attribute restrictions. Multiple attribute restrictions are evaluated with AND. If both destination and attribute restrictions are present, they evaluate with AND."
-  attributes: [AttributeRestrictionsInput]
+  "Name of the restriction"
+  name: String
 
-  "Destination restrictions. If multiple destination restrictions are present, the most localized is the only one evaluated (i.e. evaluate postal if present, then region if present, then country). If both destination and attribute restrictions are present, they evaluate with AND."
+  """
+  Attribute restrictions applied on order items.
+  Multiple attribute restrictions are evaluated with AND.
+  """
+  itemAttributes: [AttributeRestrictionInput]
+
+  """
+  Destination restrictions. If multiple destination restrictions are present, the most localized
+  is the only one evaluated (i.e. evaluate postal if present, then region if present, then country).
+  """
   destination: DestinationRestrictionsInput
 
-  "Method IDs to apply this restriction to. If none, applies to all methods as a universal restriction."
+  "Fulfillment method IDs to apply this restriction to. If none, applies to all methods as a universal restriction."
   methodIds: [ID]
 
   """

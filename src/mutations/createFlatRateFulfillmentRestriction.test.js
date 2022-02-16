@@ -14,8 +14,9 @@ test("add a flat rate fulfillment restriction", async () => {
     _id: "restriction123",
     shopId: "shop123",
     restriction: {
+      name: "Restrict knifes in CO and NY",
       type: "deny",
-      attributes: [
+      itemAttributes: [
         { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
         { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
       ],
@@ -26,9 +27,10 @@ test("add a flat rate fulfillment restriction", async () => {
   expect(result).toEqual({
     restriction: {
       _id: expect.any(String),
+      name: "Restrict knifes in CO and NY",
       shopId: "shop123",
       type: "deny",
-      attributes: [
+      itemAttributes: [
         { property: "vendor", value: "reaction", propertyType: "string", operator: "eq" },
         { property: "productType", value: "knife", propertyType: "string", operator: "eq" }
       ],
