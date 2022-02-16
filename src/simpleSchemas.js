@@ -70,7 +70,10 @@ export const FulfillmentRestrictionSchema = new SimpleSchema({
 });
 
 export const FulfillmentMethodSchema = new SimpleSchema({
-  "_id": String,
+  "_id": {
+    type: String,
+    optional: true
+  },
   "cost": {
     type: Number,
     optional: true

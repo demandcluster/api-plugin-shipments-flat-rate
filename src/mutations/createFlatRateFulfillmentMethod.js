@@ -1,10 +1,10 @@
 import SimpleSchema from "simpl-schema";
 import Random from "@reactioncommerce/random";
 import ReactionError from "@reactioncommerce/reaction-error";
-import methodSchema from "../util/methodSchema.js";
+import { FulfillmentMethodSchema } from "../simpleSchemas.js";
 
 const inputSchema = new SimpleSchema({
-  method: methodSchema,
+  method: FulfillmentMethodSchema,
   shopId: String
 });
 
