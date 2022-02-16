@@ -17,6 +17,12 @@ export default function orderMatchesDestinationRestriction(commonOrder, restrict
     region: restrictionRegion
   } = destination;
 
+  if (
+    restrictionPostal && restrictionPostal.length === 0 &&
+    restrictionRegion && restrictionRegion.length === 0 &&
+    restrictionCountry && restrictionCountry.length === 0
+  ) return true;
+
   // Start checking at the micro-level, and move more macro as we go on
   if (restrictionPostal && restrictionPostal.includes(shippingAddress.postal)) {
     return true;

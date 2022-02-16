@@ -717,7 +717,12 @@ test("deny method - vendor on deny list", async () => {
           propertyType: "string",
           operator: "eq"
         }
-      ]
+      ],
+      destination: {
+        country: [],
+        region: [],
+        postal: []
+      }
     }
   ];
 
