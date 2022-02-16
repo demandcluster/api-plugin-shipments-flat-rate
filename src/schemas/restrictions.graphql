@@ -182,6 +182,12 @@ type FlatRateFulfillmentRestriction implements Node {
   name: String
 
   """
+  Attribute restrictions applied on common order.
+  Multiple attribute restrictions are evaluated with AND.
+  """
+  orderAttributes: [AttributeRestriction]
+
+  """
   Attribute restrictions applied on order items.
   Multiple attribute restrictions are evaluated with AND.
   """
@@ -221,6 +227,12 @@ extend type Mutation {
 input FlatRateFulfillmentRestrictionInput {
   "Name of the restriction"
   name: String
+
+  """
+  Attribute restrictions applied on common order.
+  Multiple attribute restrictions are evaluated with AND.
+  """
+  orderAttributes: [AttributeRestrictionInput]
 
   """
   Attribute restrictions applied on order items.
