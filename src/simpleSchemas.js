@@ -42,7 +42,7 @@ export const Destination = new SimpleSchema({
   "postal.$": String
 });
 
-export const FulfillmentRestrictionSchema = new SimpleSchema({
+export const FulfillmentRestriction = new SimpleSchema({
   "name": {
     type: String,
     optional: true
@@ -69,7 +69,7 @@ export const FulfillmentRestrictionSchema = new SimpleSchema({
   }
 });
 
-export const FulfillmentMethodSchema = new SimpleSchema({
+export const FulfillmentMethod = new SimpleSchema({
   "_id": {
     type: String,
     optional: true

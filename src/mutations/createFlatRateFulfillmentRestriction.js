@@ -1,10 +1,10 @@
 import SimpleSchema from "simpl-schema";
 import Random from "@reactioncommerce/random";
 import ReactionError from "@reactioncommerce/reaction-error";
-import { FulfillmentRestrictionSchema } from "../simpleSchemas.js";
+import { FulfillmentRestriction } from "../simpleSchemas.js";
 
 const inputSchema = new SimpleSchema({
-  restriction: FulfillmentRestrictionSchema,
+  restriction: FulfillmentRestriction,
   shopId: String
 });
 

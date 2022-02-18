@@ -1,9 +1,9 @@
 import SimpleSchema from "simpl-schema";
 import ReactionError from "@reactioncommerce/reaction-error";
-import { FulfillmentMethodSchema } from "../simpleSchemas.js";
+import { FulfillmentMethod } from "../simpleSchemas.js";
 
 const inputSchema = new SimpleSchema({
-  method: FulfillmentMethodSchema,
+  method: FulfillmentMethod,
   methodId: String,
   shopId: String
 });

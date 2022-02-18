@@ -6,6 +6,7 @@ import mutations from "./mutations/index.js";
 import policies from "./policies.json";
 import queries from "./queries/index.js";
 import schemas from "./schemas/index.js";
+import { FulfillmentMethod } from "./simpleSchemas.js";
 
 /**
  * @summary Import and call this function to add this plugin to your API.
@@ -42,6 +43,9 @@ export default async function register(app) {
     mutations,
     policies,
     queries,
+    simpleSchemas: {
+      FulfillmentMethod
+    },
     functionsByType: {
       getFulfillmentMethodsWithQuotes: [getFulfillmentMethodsWithQuotes]
     },
