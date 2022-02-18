@@ -52,6 +52,10 @@ extend type Mutation {
     "Mutation input"
     input: DeleteFlatRateFulfillmentMethodInput!
   ): DeleteFlatRateFulfillmentMethodPayload!
+
+  setRestrictionsOnFulfillmentMethod(
+    input: SetRestrictionsOnFulfillmentMethodIput!
+  ): SetRestrictionsOnFulfillmentMethodPayload!
 }
 
 "Defines a fulfillment method that has a fixed price. This type is provided by the `flat-rate` fulfillment plugin."
@@ -87,6 +91,9 @@ type FlatRateFulfillmentMethod implements Node {
 
   "The shop to which this fulfillment method belongs"
   shop: Shop!
+
+  "List of flat rate fulfillment restrictions applicable to the fulfillment method"
+  restrictions: [FlatRateFulfillmentRestriction]
 }
 
 ####
@@ -161,6 +168,20 @@ input DeleteFlatRateFulfillmentMethodInput {
   shopId: ID!
 }
 
+input SetRestrictionsOnFulfillmentMethodIput {
+  "An optional string identifying the mutation call, which will be returned in the response payload"
+  clientMutationId: String
+
+  "The ID of the flat rate fulfillment method you want to delete"
+  methodId: ID!
+
+  "The shop that owns the method"
+  shopId: ID!
+
+  "A list of ID of flat rate fulfillment method restrictions you want to add to a method"
+  restrictionIds: [ID]!
+}
+
 ####
 # Payloads
 ####
@@ -189,6 +210,14 @@ type DeleteFlatRateFulfillmentMethodPayload {
   clientMutationId: String
 
   "The removed fulfillment method"
+  method: FlatRateFulfillmentMethod!
+}
+
+type SetRestrictionsOnFulfillmentMethodPayload {
+  "An optional string identifying the mutation call, which will be returned in the response payload"
+  clientMutationId: String
+
+  "The updated fulfillment method"
   method: FlatRateFulfillmentMethod!
 }
 
