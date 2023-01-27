@@ -16,6 +16,6 @@ export default function orderPassesRestrictions(commonOrder, fulfillmentRestrict
       orderMatchesItemAttributesRestriction(commonOrder, restriction) &&
       orderMatchesDestinationRestriction(commonOrder, restriction);
 
-    return type === "deny" ? !matchesRestriction : matchesRestriction;
+    return type === "deny" ? !matchesRestriction : true;
   });
 }
