@@ -2,7 +2,7 @@ import Logger from "@reactioncommerce/logger";
 import filterFulfillmentMethods from "./util/filterFulfillmentMethods.js";
 import orderPassesGlobalRestrictions from "./util/isOrderShippingGloballyRestricted.js";
 import handleNoFulfillmentMethodsWithQuotes from "./util/handleNoFulfillmentMethodsWithQuotes.js";
-
+let mainshop;
 export const packageName = "flat-rate-shipping";
 
 /**
@@ -40,7 +40,22 @@ export default async function getFulfillmentMethodsWithQuotes(context, commonOrd
     "shopId": commonOrder.shopId,
     "provider.enabled": true
   }).toArray();
-
+  
+  // if the merchant does not have shipping take the main shop fulfilment
+  if(shippings.length == 0){
+    // retry main shop shipping
+    if(!mainshop){
+      mainshop = await context.queries.primaryShop(context);
+    }
+    console.log("mainshop",mainshop);
+    shippings = await Shipping.find({
+      "shopId": mainshop._id,
+      "provider.enabled": true
+    }).toArray();
+    shippings.filter(shopObject => shopObject.shopId == mainshop)
+       .forEach(shopObject => shopObject.shopId = commonOrder.shopId);
+  }
+  
   const initialNumOfRates = rates.length;
 
   if (!(await orderPassesGlobalRestrictions(context, commonOrder))) {
